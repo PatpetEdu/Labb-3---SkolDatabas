@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -45,6 +46,7 @@ namespace Labb_3___Skol_Databas.Models
 
             Console.Write("Telefonnummer: ");
             string telefonnummer = Console.ReadLine();
+
 
             //Bekräftar inmatningen från användaren
             //konsolen rensas innan uppgifterna som har inmatats skrivs ut
@@ -94,12 +96,99 @@ namespace Labb_3___Skol_Databas.Models
                         };
 
                         // Lägger till en ny student i databasen
-                        context.Students.Add(newStudent);
-
+                        context.Students.Add(newStudent);                   
                         // Sparar ändringarna i databasen
                         context.SaveChanges();
+                        Console.WriteLine("Eleven har registrerats i databasen");
+                        Console.WriteLine();
 
-                        Console.WriteLine("Elev har lagts till i databasen!");
+                        //Användaren får möjlighet att registrera eleven till en kurs
+                        Console.WriteLine("Vill du även registrera eleven till en ny kurs?");
+                        Console.WriteLine("1. Ja");
+                        Console.WriteLine("2. Nej");
+
+
+                        string registerChoice = Console.ReadLine();
+
+                        if (registerChoice == "1")
+                        {
+                            bool continueRegistering = true;
+
+                            while (continueRegistering)
+                            {
+                                Console.WriteLine("Vänligen välj en kurs att tilldela eleven:");
+                                // Hämta och visa en lista över tillgängliga kurser från databasen
+                                var availableCourses = context.Courses.ToList();
+
+                                foreach (var course in availableCourses)
+                                {
+                                    Console.WriteLine($"{course.CourseId}. {course.CourseName}");
+                                }
+
+                                Console.Write("Ange kursens ID: ");
+                                string selectedCourseIdInput = Console.ReadLine();
+
+                                if (int.TryParse(selectedCourseIdInput, out int selectedCourseId))
+                                {  
+                                    var selectedCourse = context.Courses
+                                        .FirstOrDefault(course => course.CourseId == selectedCourseId);
+
+                                    if (selectedCourse == null)
+                                    {
+                                        Console.WriteLine("Kursen kunde inte hittas. Vill du fortsätta?");
+                                        Console.WriteLine("1. Ja");
+                                        Console.WriteLine("2. Nej");
+
+                                        string continueChoice = Console.ReadLine();
+
+                                        if (continueChoice == "1")
+                                        {
+                                            continue; // Fortsätt loopen för att välja en annan kurs
+                                        }
+                                        else
+                                        {
+                                            continueRegistering = false; // Avsluta loopen för att registrera fler kurser
+                                            break;
+                                        }
+                                    }
+
+                                    // Lägg till den nya studenten till kursens Students-lista
+                                    selectedCourse.Students.Add(newStudent);
+
+                                    // Spara ändringarna i databasen
+                                    context.SaveChanges();
+                                    Console.WriteLine();
+                                    Console.WriteLine("Eleven har tilldelats en kurs!");
+                                    Console.WriteLine();
+
+                                    Console.WriteLine("Vill du registrera eleven till en annan kurs?");
+                                    Console.WriteLine("1. Ja");
+                                    Console.WriteLine("2. Nej");
+                               
+
+                                    string anotherCourseChoice = Console.ReadLine();
+
+                                    if (anotherCourseChoice != "1")
+                                    {
+                                        continueRegistering = false;
+                                        selectedCourse.Students.Add(newStudent);
+                                        context.SaveChanges();
+                                    }
+                                    if (choice != "2")
+                                    {
+                                        Console.WriteLine("Programmet avslutas");
+                                    }
+                                }
+                                else
+                                {
+                                    Console.WriteLine("Ogiltigt kurs-ID. Försök igen.");
+                                }
+                            }
+                        }
+                        else
+                        {
+                            Console.WriteLine("Ingen kurs har valts. Avslutar processen.");
+                        }
                         break;
                     case "2":
                         isUserChoiceValid = true;
@@ -214,6 +303,70 @@ namespace Labb_3___Skol_Databas.Models
                 }
             }
         }
-    }    
+        public static void Economy()
+        {
+            var listOfPositions = context.Positions.ToList();
+
+            Console.WriteLine("Vänligen välj befattning för att visa löneinformation:");
+
+            for (int i = 0; i < listOfPositions.Count; i++)
+            {
+                Console.WriteLine($"{i + 1}. {listOfPositions[i].PositionName}");
+            }
+
+            Console.WriteLine($"{listOfPositions.Count + 1}. Avsluta");
+
+            int userChoice;
+
+            while (!int.TryParse(Console.ReadLine(), out userChoice) || userChoice < 1 || userChoice > listOfPositions.Count + 1)
+            {
+                Console.WriteLine("Ogiltigt val. Försök igen.");
+            }
+
+            if (userChoice == listOfPositions.Count + 1)
+            {
+                return; // Avsluta metoden om användaren väljer att avsluta
+            }
+
+            var selectedPosition = listOfPositions[userChoice - 1];
+            var selectedEmployees = context.Employees
+                .Include(e => e.Fkperson) // Personalinfo
+                .Include(e => e.Fkposition)
+                .Where(e => e.EmploymentDate <= DateTime.Now && e.FkpositionId == selectedPosition.PositionId)
+                .ToList();
+
+            int employeeCount = selectedEmployees.Count;
+
+            if (employeeCount > 0)
+            {
+                Console.WriteLine();
+                Console.WriteLine($"Löneinformation för befattningen {selectedPosition.PositionName}");
+                Console.WriteLine($"Antal anställda: {employeeCount}");
+                Console.WriteLine();
+
+                // Beräkna total lön för befattningen
+                decimal totalSalary = selectedEmployees.Sum(e => decimal.Parse(e.Salary));
+                Console.WriteLine($"Total lön för befattningen: {totalSalary} kr");
+                Console.WriteLine();
+
+                // Visa individuell löneinformation för varje anställd
+                foreach (var employee in selectedEmployees)
+                {
+                    Console.WriteLine($"AnställningsId: {employee.EmployeeId}");
+                    Console.WriteLine($"Namn: {employee.Fkperson.FirstName} {employee.Fkperson.LastName}");
+                    Console.WriteLine($"Befattning: {employee.Fkposition.PositionName}");
+                    Console.WriteLine($"Lön: {employee.Salary} kr");
+                    Console.WriteLine();
+                }
+            }
+            else
+            {
+                Console.WriteLine($"Ingen personal hittades med den befattning {selectedPosition.PositionName}");
+            }
+            Console.ReadKey();
+        }
+
+    }
+        
 }
 
