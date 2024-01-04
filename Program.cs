@@ -1,4 +1,5 @@
 ﻿using Labb_3___Skol_Databas.Models;
+using Microsoft.Data.SqlClient;
 using System.Security.Principal;
 
 namespace Labb_3___Skol_Databas
@@ -34,7 +35,27 @@ namespace Labb_3___Skol_Databas
                     break;
                 case "2":
                     Functionality.GetStudents();
+                    //Console.WriteLine("mata in student ID:");
+                    //int Userinput = int.Parse(Console.ReadLine());
+                    //string connectionString = "Data Source = (LocalDB)\\MSSQLLocalDB;Database=HogwartsSkola;Trusted_Connection=True;MultipleActiveResultSets=true";
+                    //using(SqlConnection connection = new SqlConnection(connectionString))
+                    //{
+                    //    connection.Open();
+                    //    SqlCommand command = new SqlCommand("Getstudentinfos", connection);
+                    //    command.CommandType = System.Data.CommandType.StoredProcedure;
+                    //    command.Parameters.Add(new SqlParameter("@studentId", Userinput));
 
+                    //    using (SqlDataReader reader = command.ExecuteReader())
+                    //    {
+
+                    //        while (reader.Read())
+                    //        {
+                    //            Console.WriteLine("Firstname: {0}, Lastname: {1}",
+                    //                reader["FirstName"], reader["LastName"]);
+                    //        }
+                    //    }
+
+            //}
                     break;
                 case "3":
                     Functionality.GetStudentsFromClass();
@@ -60,6 +81,9 @@ namespace Labb_3___Skol_Databas
                     break;
                 case "9":
                     Admin.SalaryOut();
+                    break;
+                case "10":
+
                     break;
             }
         }
