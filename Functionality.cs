@@ -20,16 +20,17 @@ namespace Labb_3___Skol_Databas
             var employees = _dbContext.Employees
             .Include(e => e.Fkperson) //Personalinfo
             .Include(e => e.Fkposition)
+            .Where(e => e.EmploymentDate <= DateTime.Now)
             .ToList();
 
             while (true)
             {
                 //Vamöjligheter bereonde på vad man vill visa
-                Console.WriteLine($"\nVälj om du vill visa all Personal eller en speciell befattning som tex lärare" +
+                Console.WriteLine($"\nVälj om du vill visa alla anställda eller en speciell befattning som tex lärare" +
                  "\nGör ditt val nedan" +
                  "\n==================" +
-                 "\n[1] Visa all personal" +
-                 "\n[2] visa efter befattning" +
+                 "\n[1] Visa alla anställda på skolan" +
+                 "\n[2] Visa anställda efter befattning"+ 
                  "\n[0] Avsluta" +
                  "\n");
 
@@ -48,14 +49,26 @@ namespace Labb_3___Skol_Databas
                             if (employee.FkpositionId != null)
                             {
                                 Console.WriteLine($"Befattning: {employee.Fkposition.PositionName}");
-                                Console.WriteLine();
 
-                            }
-                            else
-                            {
-                                Console.WriteLine("befattning: Saknas");
-                            }
+                                if (employee.EmploymentDate != null)
+                                {
+                                    var currentDate = DateTime.Now;
+                                    var yearsWorked = currentDate.Year - employee.EmploymentDate.Value.Year;
 
+                                    // Om anställningen inträffade senare under året, minska antalet år med 1
+                                    if (currentDate.Month < employee.EmploymentDate.Value.Month || (currentDate.Month == employee.EmploymentDate.Value.Month && currentDate.Day < employee.EmploymentDate.Value.Day))
+                                    {
+                                        yearsWorked--;
+                                    }
+
+                                    Console.WriteLine($"Total anställningstid: {yearsWorked} år");
+                                    Console.WriteLine();
+                                }
+                                else
+                                {
+                                    Console.WriteLine("Anställningsdatum saknas");
+                                }
+                            }
                         }
                         break;
                     case "2":
@@ -74,11 +87,12 @@ namespace Labb_3___Skol_Databas
                             .Where(e => e.Fkposition.PositionName.ToLower() == befattning.ToLower())
                             .ToList();
 
-
-                        if (SelectedEmployees.Any())
+                        int employeeCount = SelectedEmployees.Count;
+                        if (employeeCount > 0)
                         {
                             Console.WriteLine();
                             Console.WriteLine($"Lista över personal med befattningen {befattning}");
+                            Console.WriteLine($"Antal anställda: {employeeCount}");
                             Console.WriteLine();
                             foreach (var employee in SelectedEmployees)
                             {
@@ -115,6 +129,7 @@ namespace Labb_3___Skol_Databas
             foreach (var student in students)
             {
                 Console.WriteLine($"Namn: {student.Fkperson.FirstName} {student.Fkperson.LastName}");
+                Console.WriteLine($"Ålder: {student.Fkperson.Age}");
                 Console.WriteLine();
             }
         }
@@ -233,6 +248,17 @@ namespace Labb_3___Skol_Databas
                 Console.WriteLine("Inga betyg");
             }
        
+        }
+        public static void ShowCourseList()
+        {
+            Console.WriteLine("Tillgängliga kurser på skolan:");
+            // Hämta och visa en lista över tillgängliga kurser från databasen
+            var availableCourses = _dbContext.Courses.ToList();
+
+            foreach (var course in availableCourses)
+            {
+                Console.WriteLine($"{course.CourseId}. {course.CourseName}");
+            }
         }
 
     }
