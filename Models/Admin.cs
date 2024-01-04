@@ -84,6 +84,7 @@ namespace Labb_3___Skol_Databas.Models
                             Age = ålder,
                             Address = adress,
                             PhoneNumer = telefonnummer
+                            
                         };
 
                         context.Personalinfos.Add(newPersonlInfo);
@@ -92,9 +93,9 @@ namespace Labb_3___Skol_Databas.Models
 
                         var newStudent = new Student
                         {
-                            FkpersonId = newPersonlInfo.PersonId
-                        };
+                            FkpersonId = newPersonlInfo.PersonId,
 
+                        };
                         // Lägger till en ny student i databasen
                         context.Students.Add(newStudent);                   
                         // Sparar ändringarna i databasen
@@ -102,6 +103,51 @@ namespace Labb_3___Skol_Databas.Models
                         Console.WriteLine("Eleven har registrerats i databasen");
                         Console.WriteLine();
 
+                        bool isClassIdVaild = false;
+                        while (!isClassIdVaild)
+                        {
+                            //Frågar användaren vilken klass studenten ska gå i
+                            Console.WriteLine("Vänligen välj en klass att tilldela eleven:");
+
+                            //visar  en listan med alla befintliga klasser med deras ID
+                            var availableClasses = context.Classes.ToList();
+
+                            foreach (var classItem in availableClasses)
+                            {
+                                Console.WriteLine($"{classItem.ClassId}. {classItem.ClassName}");
+                            }
+
+                            Console.Write("Ange klassens ID: ");
+                            string selectedClassIdInput = Console.ReadLine();
+
+                            if (int.TryParse(selectedClassIdInput, out int selectedClassId))
+                            {
+                                var selectedClass = context.Classes.FirstOrDefault(classItem => classItem.ClassId == selectedClassId);
+
+                                if (selectedClass != null)
+                                {
+                                    // Lägg till den nya studenten i den valda klassens Students-lista
+                                    selectedClass.Students.Add(newStudent);
+
+                                    // Spara ändringarna i databasen
+                                    context.SaveChanges();
+                                    Console.WriteLine();
+                                    Console.WriteLine("Eleven har tilldelats en klass!");
+                                    Console.WriteLine();
+                                    isClassIdVaild = true; //loopen avslutas
+                                }
+                                else
+                                {
+                                    Console.WriteLine("Klassen kunde inte hittas. Eleven har inte tilldelats någon klass.");
+                                }
+                            }
+                            else
+                            {
+                                Console.WriteLine("Ogiltigt klass-ID. Försök igen.");
+                            }
+                        }
+                        
+                        //****************************************
                         //Användaren får möjlighet att registrera eleven till en kurs
                         Console.WriteLine("Vill du även registrera eleven till en ny kurs?");
                         Console.WriteLine("1. Ja");
@@ -367,7 +413,7 @@ namespace Labb_3___Skol_Databas.Models
             }
             Console.ReadKey();
         }
-        public static void SalaryAverage()
+        public static void SetGrades()
         {
 
         }
