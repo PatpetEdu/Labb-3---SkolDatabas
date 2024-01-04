@@ -303,7 +303,7 @@ namespace Labb_3___Skol_Databas.Models
                 }
             }
         }
-        public static void Economy()
+        public static void SalaryOut()
         {
             var listOfPositions = context.Positions.ToList();
 
@@ -346,7 +346,9 @@ namespace Labb_3___Skol_Databas.Models
 
                 // Beräkna total lön för befattningen
                 decimal totalSalary = selectedEmployees.Sum(e => decimal.Parse(e.Salary));
-                Console.WriteLine($"Total lön för befattningen: {totalSalary} kr");
+                decimal averageSalary = totalSalary / employeeCount;
+                Console.WriteLine($"Total lön för befattningen: {totalSalary} kr");                                          
+                Console.WriteLine($"Medellön för befattningen: {averageSalary} kr");
                 Console.WriteLine();
 
                 // Visa individuell löneinformation för varje anställd
@@ -364,6 +366,10 @@ namespace Labb_3___Skol_Databas.Models
                 Console.WriteLine($"Ingen personal hittades med den befattning {selectedPosition.PositionName}");
             }
             Console.ReadKey();
+        }
+        public static void SalaryAverage()
+        {
+
         }
 
     }
