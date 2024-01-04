@@ -59,7 +59,7 @@ namespace Labb_3___Skol_Databas
                     Functionality.ShowCourseList();
                     break;
                 case "9":
-                    Admin.Economy();
+                    Admin.SalaryOut();
                     break;
             }
         }
