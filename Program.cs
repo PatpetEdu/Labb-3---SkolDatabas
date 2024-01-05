@@ -22,6 +22,7 @@ namespace Labb_3___Skol_Databas
                     "\n[7] Lägg till ny personal" + 
                     "\n[8] Visa kurslista"+
                     "\n[9] Visa löner för olika befattningar"+
+                    "\n[10] Sätt betyg"+
                     "\n==================");
 
             Console.Write("Ditt val: ");
@@ -35,6 +36,8 @@ namespace Labb_3___Skol_Databas
                     break;
                 case "2":
                     Functionality.GetStudents();
+
+                    //***Funktionalitet för att utföra en Stored Procedure***
                     //Console.WriteLine("mata in student ID:");
                     //int Userinput = int.Parse(Console.ReadLine());
                     //string connectionString = "Data Source = (LocalDB)\\MSSQLLocalDB;Database=HogwartsSkola;Trusted_Connection=True;MultipleActiveResultSets=true";
@@ -54,8 +57,7 @@ namespace Labb_3___Skol_Databas
                     //                reader["FirstName"], reader["LastName"]);
                     //        }
                     //    }
-
-            //}
+                    //}                   
                     break;
                 case "3":
                     Functionality.GetStudentsFromClass();
@@ -83,7 +85,7 @@ namespace Labb_3___Skol_Databas
                     Admin.SalaryOut();
                     break;
                 case "10":
-
+                    Admin.SetGrades();
                     break;
             }
         }

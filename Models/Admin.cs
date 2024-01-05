@@ -47,7 +47,6 @@ namespace Labb_3___Skol_Databas.Models
             Console.Write("Telefonnummer: ");
             string telefonnummer = Console.ReadLine();
 
-
             //Bekräftar inmatningen från användaren
             //konsolen rensas innan uppgifterna som har inmatats skrivs ut
             Console.Clear();
@@ -146,13 +145,10 @@ namespace Labb_3___Skol_Databas.Models
                                 Console.WriteLine("Ogiltigt klass-ID. Försök igen.");
                             }
                         }
-                        
-                        //****************************************
                         //Användaren får möjlighet att registrera eleven till en kurs
                         Console.WriteLine("Vill du även registrera eleven till en ny kurs?");
                         Console.WriteLine("1. Ja");
                         Console.WriteLine("2. Nej");
-
 
                         string registerChoice = Console.ReadLine();
 
@@ -276,7 +272,6 @@ namespace Labb_3___Skol_Databas.Models
                 ageInput = Console.ReadLine();
                 isValidAge = int.TryParse(ageInput, out ålder);
             }
-
             Console.Write("Adress: ");
             string adress = Console.ReadLine();
 
@@ -308,7 +303,6 @@ namespace Labb_3___Skol_Databas.Models
                 string choice = Console.ReadLine();
                 switch (choice)
                 {
-
                     case "1":
                         isUserChoiceValid = true;
                         // Skapa en ny Personalinfo med användarens input
@@ -415,7 +409,81 @@ namespace Labb_3___Skol_Databas.Models
         }
         public static void SetGrades()
         {
+            Console.WriteLine("Välj en elev för att sätta betyg:");
+            var students = context.Students
+                .Include(s => s.Fkperson) //Personalinfo           
+                .ToList();
 
+            Console.WriteLine("Lista över alla elever på skolan");
+            Console.WriteLine();
+
+            foreach (var student in students)
+            {
+                Console.WriteLine($"{student.StudentId}. {student.Fkperson.FirstName} {student.Fkperson.LastName}");
+            }
+
+            Console.Write("Ange elevens ID: ");
+            if (int.TryParse(Console.ReadLine(), out int selectedStudentId))
+            {
+                var selectedStudent = students.FirstOrDefault(s => s.StudentId == selectedStudentId);
+
+                if (selectedStudent != null)
+                {
+                    Console.WriteLine($"Vald elev: {selectedStudent.Fkperson.FirstName} {selectedStudent.Fkperson.LastName}");
+
+                    Console.WriteLine("Välj kurs att sätta betyg för:");
+                    Functionality.ShowCourseList();
+                    //Användaren får ange kursens ID
+                    Console.Write("Ange kursens ID: ");
+                    if (int.TryParse(Console.ReadLine(), out int selectedCourseId))
+                    {
+                        var selectedCourse = context.Courses.FirstOrDefault(c => c.CourseId == selectedCourseId);
+
+                        if (selectedCourse != null)
+                        {
+                            Console.WriteLine($"Vald kurs: {selectedCourse.CourseName}");
+                            //Användaren sätter ett betyg mellan 1-5
+                            Console.Write("Ange betyg mellan 1-5: ");
+                            string gradeInfoInput = Console.ReadLine();
+                            if (int.TryParse(gradeInfoInput, out int gradeInfo) && gradeInfo >= 1 && gradeInfo <=5)                           
+                            {
+                               var newGrade = new Courselist
+
+                               // Lägg till betyg för den valda kursen och eleven
+
+                               {
+                                   FkstudentId = selectedStudent.StudentId,
+                                   FkcourseId = selectedCourse.CourseId,
+                                   GradeInfo = gradeInfo,
+                                   GradeDate = DateTime.Now, // Datum när betyget sätts
+                                                             
+                               };
+
+                                context.Courselists.Add(newGrade);
+                                context.SaveChanges();
+
+                                Console.WriteLine("Betyget har lagts till!");
+                            }
+                        }
+                        else
+                        {
+                            Console.WriteLine("Kursen kunde inte hittas.");
+                        }
+                    }
+                    else
+                    {
+                        Console.WriteLine("Ogiltigt kurs-ID.");
+                    }
+                }
+                else
+                {
+                    Console.WriteLine("Elev med angivet ID kunde inte hittas.");
+                }
+            }
+            else
+            {
+                Console.WriteLine("Ogiltigt elev-ID.");
+            }
         }
 
     }

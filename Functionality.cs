@@ -246,8 +246,7 @@ namespace Labb_3___Skol_Databas
             else
             {
                 Console.WriteLine("Inga betyg");
-            }
-       
+            }       
         }
         public static void ShowCourseList()
         {
