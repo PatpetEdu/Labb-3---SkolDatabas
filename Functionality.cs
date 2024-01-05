@@ -185,33 +185,90 @@ namespace Labb_3___Skol_Databas
 
         }
         //Metod för att hämta betyg som har satts den senaste månaden
-        public static void GetGradesFromLastMonth()
+        public static void GetGrades()
         {
-            var studentsGradeInfo = _dbContext.Courselists
-           .Include(g => g.Fkstudent.Fkperson)
-           .Include(g => g.Fkcourse)
-           .Where (g => g.GradeDate >= DateTime.Now.AddMonths(-1))
-           .OrderByDescending(g => g.GradeDate)         
-           .ToList();
-
-            if (studentsGradeInfo.Any())
+            while (true)
             {
-                Console.WriteLine($"Här visas alla betyg som har satts den senaste månaden");
-                Console.WriteLine();
-                foreach (var grade in studentsGradeInfo)
-                {                
-                    Console.WriteLine($"Namn: {grade.Fkstudent.Fkperson.FirstName} {grade.Fkstudent.Fkperson.LastName}");
-                    Console.WriteLine($"Krus; {grade.Fkcourse.CourseName}");
-                    Console.WriteLine($"Betyg: {grade.GradeInfo}");
-                    Console.WriteLine($"Betygsdatum: {grade.GradeDate}");
-                    Console.WriteLine();                  
+                Console.WriteLine("Välj ett alternativ:");
+                Console.WriteLine("1. Visa betyg som har satts den senaste månaden");
+                Console.WriteLine("2. Visa betyg för en specifik elev");
+                Console.WriteLine("3. Avsluta");
+                string choice = Console.ReadLine();
+
+                switch (choice)
+                {
+                    case "1":
+                        var studentsGradeInfo = _dbContext.Courselists
+                       .Include(g => g.Fkstudent.Fkperson)
+                       .Include(g => g.Fkcourse)
+                       .ThenInclude(c => c.Fkemployee.Fkperson)
+                         .Where(g => g.GradeDate >= DateTime.Now.AddMonths(-1))
+                        .OrderByDescending(g => g.GradeDate)
+                        .ToList();
+
+                        if (studentsGradeInfo.Any())
+                        {
+                            Console.WriteLine($"Här visas alla betyg som har satts den senaste månaden");
+                            Console.WriteLine();
+                            foreach (var grade in studentsGradeInfo)
+                            {
+                                Console.WriteLine($"Namn: {grade.Fkstudent.Fkperson.FirstName} {grade.Fkstudent.Fkperson.LastName}");
+                                Console.WriteLine($"Krus; {grade.Fkcourse.CourseName}");
+                                Console.WriteLine($"Betyg: {grade.GradeInfo}");
+                                Console.WriteLine($"Betygsdatum: {grade.GradeDate}");
+                                Console.WriteLine($"Lärare som satt betyget: {grade.Fkcourse.Fkemployee.Fkperson.FirstName} {grade.Fkcourse.Fkemployee.Fkperson.LastName}");
+                                Console.WriteLine();
+                            }
+                        }
+                        else
+                        {
+                            Console.WriteLine("Inga satta betyg hittades den senaste månanden");
+                        }
+                        break;
+                    case "2":
+                        Console.WriteLine("Vänligen ange elevens ID: ");
+                        if (int.TryParse(Console.ReadLine(), out int studentId))
+                        {
+                            var studentGrades = _dbContext.Courselists
+                                .Include(g => g.Fkcourse)
+                                .ThenInclude(c => c.Fkemployee.Fkperson)
+                                .Where(g => g.FkstudentId == studentId)
+                                .ToList();
+
+                            if (studentGrades.Any())
+                            {
+                                Console.WriteLine($"Här visas betyg för elev med ID {studentId}");
+                                Console.WriteLine();
+                                foreach (var grade in studentGrades)
+                                {
+                                    Console.WriteLine($"Kurs: {grade.Fkcourse.CourseName}");
+                                    Console.WriteLine($"Betyg: {grade.GradeInfo}");
+                                    Console.WriteLine($"Betygsdatum: {grade.GradeDate}");
+                                    Console.WriteLine($"Lärare som satt betyget: {grade.Fkcourse.Fkemployee.Fkperson.FirstName} {grade.Fkcourse.Fkemployee.Fkperson.LastName}");
+                                    Console.WriteLine();
+                                }
+                            }
+                            else
+                            {
+                                Console.WriteLine($"Inga betyg hittades för elev med ID {studentId}");
+                            }
+                        }
+                        else
+                        {
+                            Console.WriteLine("Ogiltigt elev-ID.");
+                        }
+                        break;
+                    case "3":
+                        Console.WriteLine("Programmet avslutas.");
+                        return;
+                    default:
+                        Console.WriteLine("Ogiltigt val. Försök igen.");
+                        break;
+
                 }
             }
-            else
-            {
-                Console.WriteLine("Inga satta betyg hittades den senaste månanden");
-            }
         }
+      
         //Hämtar ett betygssnitt samt högsta och lägsta betyg
         public static void GetGradeAverage()
         {

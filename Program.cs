@@ -16,7 +16,7 @@ namespace Labb_3___Skol_Databas
                     "\n[1] Information om anställda" +
                     "\n[2] Visa alla elever" +
                     "\n[3] Visa alla elever i en specifik klass" +
-                    "\n[4] Visa alla betyg som satts den senaste månaden" +
+                    "\n[4] Visa betyg" +
                     "\n[5] Visa en lista med alla kurser och Betyg" +
                     "\n[6] Lägg till nya elever" +
                     "\n[7] Lägg till ny personal" + 
@@ -64,7 +64,7 @@ namespace Labb_3___Skol_Databas
                    
                     break;
                 case "4":
-                    Functionality.GetGradesFromLastMonth();
+                    Functionality.GetGrades();
                     break;
 
                 case "5":
